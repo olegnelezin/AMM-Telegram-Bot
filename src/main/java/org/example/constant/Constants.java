@@ -1,5 +1,8 @@
 package org.example.constant;
 
 public interface Constants {
-    String startResponse = "Привет!\nЭтот бот создан для студентов ВГУ факультета ПММ.";
+    String START_INFO = "Старт";
+    String START_MESSAGE = "Привет!\nЭтот бот создан для студентов ВГУ факультета ПММ.";
+    String REGISTRATION_INFO = "Регистрация";
+    String REGISTRATION_MESSAGE = "Регистрация";
 }
