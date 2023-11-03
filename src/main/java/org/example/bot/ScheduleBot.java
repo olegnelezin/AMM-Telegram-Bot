@@ -1,6 +1,6 @@
 package org.example.bot;
 
-import org.example.KeyboardFactory.InlineKeyboardFactory;
+import org.example.keyboardFactory.InlineKeyboardFactory;
 import org.example.config.Config;
 import org.example.constant.Constants;
 import org.telegram.abilitybots.api.bot.AbilityBot;
