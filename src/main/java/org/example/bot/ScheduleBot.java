@@ -3,6 +3,8 @@ package org.example.bot;
 import org.example.keyboardFactory.InlineKeyboardFactory;
 import org.example.config.Config;
 import org.example.constant.Constants;
+import org.example.model.User;
+import org.example.service.UserService;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -40,6 +42,9 @@ public class ScheduleBot extends AbilityBot implements Constants {
                 .locality(ALL)
                 .privacy(PUBLIC)
                 .action(ctx -> {
+                    User user = new User(ctx.chatId(), 2, 91);
+                    UserService userService = new UserService();
+                    userService.saveUser(user);
                     SendMessage sendMessage = new SendMessage();
                     sendMessage.setChatId(ctx.chatId());
                     sendMessage.setText(REGISTRATION_MESSAGE);
