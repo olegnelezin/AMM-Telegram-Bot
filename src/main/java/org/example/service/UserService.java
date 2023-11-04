@@ -11,6 +11,9 @@ public class UserService {
         userDaoImpl = new UserDaoImpl();
     }
 
+    public void saveOrUpdate(Long telegramId, int courseNumber, int groupNumber) {
+        userDaoImpl.saveOrUpdate(telegramId, courseNumber, groupNumber);
+    }
     public User findUserByTelegramId(long telegram_id) {
         return userDaoImpl.findByTelegramId(telegram_id);
     }

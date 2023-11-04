@@ -1,11 +1,11 @@
 package org.example.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "users")
 public class User {
@@ -13,18 +13,22 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "telegram_id")
+    @Column(name = "telegram_id", unique = true)
     private long telegramId;
 
-    @Column(name = "course")
-    private int course;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(nullable = false)
+    private Course course;
 
-    @Column(name = "_group")
-    private int _group;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(nullable = false)
+    private Group group;
 
-    public User(long telegramId, int course, int group) {
+    public User(long telegramId, Course course, Group group) {
         this.telegramId = telegramId;
         this.course = course;
-        this._group = group;
+        this.group = group;
     }
+
+    public User() {}
 }
