@@ -8,5 +8,5 @@ public class Config {
     @Getter
     private static final String name = "amm_schedule";
     @Getter
-    private static final String token = "6352604763:AAFSLaVDQo0j_hHE-jyE1URYIxJEDVkqoZo";
+    private static final String token = "5902116195:AAFk9UEJUtaS2YA3NlBmxUh1v5LMesmjeO4";
 }
