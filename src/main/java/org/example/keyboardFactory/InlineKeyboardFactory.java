@@ -57,6 +57,12 @@ public class InlineKeyboardFactory {
             }
         }
         rowsInline.add(rowInline);
+        rowInline = new ArrayList<>();
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        button.setText("<");
+        button.setCallbackData("backToCourse");
+        rowInline.add(button);
+        rowsInline.add(rowInline);
         inlineKeyboard.setKeyboard(rowsInline);
         return inlineKeyboard;
     }

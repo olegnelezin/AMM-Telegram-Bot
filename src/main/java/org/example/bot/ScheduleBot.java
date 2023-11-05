@@ -124,6 +124,29 @@ public class ScheduleBot extends AbilityBot implements Constants {
     }
 
     /**
+     * Функция вызывается при нажатии кнопки "назад" при выборе группы<br>
+     * Меняет сообщение на выбор курса
+     */
+    public Reply backToChooseCourse() {
+        BiConsumer<BaseAbilityBot, Update> action = (bot, upd) -> {
+            EditMessageText editMessageText = new EditMessageText();
+            editMessageText.setChatId(AbilityUtils.getChatId(upd));
+            editMessageText.setMessageId(upd.getCallbackQuery().getMessage().getMessageId());
+            editMessageText.setText(REGISTRATION_MESSAGE);
+            editMessageText.setReplyMarkup(InlineKeyboardFactory.allCourses());
+            silent.execute(editMessageText);
+        };
+        return Reply.of(action, Flag.CALLBACK_QUERY, isPressButtonBackToCourse());
+    }
+
+    /**
+     * Функция-условие определяет нажатие на кнопку назад при выборе группы
+     */
+    private Predicate<Update> isPressButtonBackToCourse() {
+        return upd -> upd.hasCallbackQuery() && upd.getCallbackQuery().getData().equals("backToCourse");
+    }
+
+    /**
      * Функция вызываеться при нажатии на клавиатуру с выбором группы<br>
      * Добаваляет или изменяет запись в базе данных о пользователе
      */
@@ -237,6 +260,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                     User user = userService.findUserByTelegramId(ctx.user().getId());
                     if(user == null) {
                         sendMessage.setText(UNREGISTER_MESSAGE);
+                        silent.execute(sendMessage);
                     } else {
                         LocalDateTime localDateTime = LocalDateTime.now();
                         LocalDateTime currentDayWeek = localDateTime.with(DayOfWeek.MONDAY);
@@ -306,6 +330,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                     User user = userService.findUserByTelegramId(ctx.user().getId());
                     if(user == null) {
                         sendMessage.setText(UNREGISTER_MESSAGE);
+                        silent.execute(sendMessage);
                     } else {
                         LocalDateTime localDateTime = LocalDateTime.now();
                         LocalDateTime currentDayWeek = localDateTime.with(DayOfWeek.SUNDAY).plusDays(1);

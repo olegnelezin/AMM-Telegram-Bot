@@ -13,8 +13,14 @@ public class MessageUtils {
      * Выводит основную информацию о юзере, сегодняшнюю дату, день недели, Числитель/Знаменатель
      */
     public static String header(User user, LocalDateTime localDateTime) {
-        return String.format("<i>%d курс %d   [%s]</i>\n<b><u>%s</u></b>(%s):\n\n",
-                user.getCourse().getNumber(),
+        String course;
+        if(user.getCourse().getNumber() < 6) {
+            course = user.getCourse().getNumber() + " курс";
+        } else {
+            course = (user.getCourse().getNumber() - 5) + " курс(Магистратура)";
+        }
+        return String.format("<i>%s %d группа  [%s]</i>\n<b><u>%s</u></b>(%s):\n\n",
+                course,
                 user.getGroup().getNumber(),
                 localDateTime.toLocalDate().format(DateTimeFormatter.ofPattern("dd.MM.yy")),
                 DateUtil.translateWeekday(localDateTime.getDayOfWeek().name()),
