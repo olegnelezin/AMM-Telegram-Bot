@@ -5,6 +5,7 @@ import org.example.model.User;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class MessageUtils {
 
@@ -29,5 +30,21 @@ public class MessageUtils {
                 subject.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 subject.getTitle(),
                 subject.getLecturer());
+    }
+
+    public static String subjectList(List<Subject> subjects) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Subject subject: subjects) {
+            stringBuilder.append(MessageUtils.subject(subject));
+        }
+        return stringBuilder.toString();
+    }
+
+    public static String subjectListOrNoSubjectMessage(List<Subject> subjects, String message) {
+        if(subjects.isEmpty()) {
+            return message;
+        } else {
+            return MessageUtils.subjectList(subjects);
+        }
     }
 }
