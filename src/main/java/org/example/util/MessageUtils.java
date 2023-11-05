@@ -25,7 +25,7 @@ public class MessageUtils {
      * Выводит информацию о предмете в форматированном виде
      */
     public static String subject(Subject subject) {
-        return String.format("> <b><i>%s-%s:</i></b>\n   %s\n   %s\n\n",
+        return String.format("> <b><i>%s-%s:</i></b>\n   %s\n   <i>%s</i>\n\n",
                 subject.getBeginTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 subject.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 subject.getTitle(),

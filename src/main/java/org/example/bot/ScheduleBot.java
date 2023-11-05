@@ -16,6 +16,7 @@ import org.telegram.abilitybots.api.bot.BaseAbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
 import org.telegram.abilitybots.api.objects.Flag;
 import org.telegram.abilitybots.api.objects.Reply;
+import org.telegram.abilitybots.api.toggle.CustomToggle;
 import org.telegram.abilitybots.api.util.AbilityUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -33,12 +34,21 @@ import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 
 public class ScheduleBot extends AbilityBot implements Constants {
 
+    private static final CustomToggle toggle = new CustomToggle()
+            .turnOff("commands")
+            .turnOff("claim")
+            .turnOff("backup")
+            .turnOff("recover")
+            .turnOff("promote")
+            .turnOff("demote")
+            .turnOff("ban")
+            .turnOff("unban");
     private final UserService userService;
     private final CourseService courseService;
     private final SubjectService subjectService;
 
     public ScheduleBot() {
-        super(Config.getToken(), Config.getName());
+        super(Config.getToken(), Config.getName(), toggle);
         userService = new UserService();
         courseService = new CourseService();
         subjectService = new SubjectService();
@@ -46,13 +56,12 @@ public class ScheduleBot extends AbilityBot implements Constants {
 
     @Override
     public long creatorId() {
-        return 878758046;
+        return 980677384;
     }
 
     /**
      * Функция вызываеться по команде /start<br>
      * Выводит приветственное сообщение бота
-     * @return
      */
     public Ability start() {
         return Ability
@@ -68,7 +77,6 @@ public class ScheduleBot extends AbilityBot implements Constants {
     /**
      * Функция вызываеться по команде /reg<br>
      * Выводит клавиатуру содержащуюю все курсы
-     * @return
      */
     public Ability start_registration() {
         return Ability
@@ -90,7 +98,6 @@ public class ScheduleBot extends AbilityBot implements Constants {
     /**
      * Функция вызваеться при нажатии на клавиатуру с выбором курса<br>
      * Меняет описание и клавиатуру сообщения на выбор группы
-     * @return
      */
     public Reply chooseGrope() {
         BiConsumer<BaseAbilityBot, Update> action = (bot, upd) -> {
@@ -102,7 +109,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
             EditMessageText editMessageText = new EditMessageText();
             editMessageText.setChatId(chatId);
             editMessageText.setMessageId(messageId);
-            editMessageText.setText(CHOOSE_COURSE_MESSAGE);
+            editMessageText.setText(CHOOSE_GROUP_MESSAGE);
             editMessageText.setReplyMarkup(InlineKeyboardFactory.allGroupsForCourse(course));
             silent.execute(editMessageText);
         };
@@ -111,7 +118,6 @@ public class ScheduleBot extends AbilityBot implements Constants {
 
     /**
      * Функция-условие определяет нажатие на клавиатуру с выбором курса
-     * @return
      */
     private Predicate<Update> isPressInlineKeyboardAllCourses() {
         return upd -> upd.hasCallbackQuery() && upd.getCallbackQuery().getData().startsWith("course");
@@ -120,7 +126,6 @@ public class ScheduleBot extends AbilityBot implements Constants {
     /**
      * Функция вызываеться при нажатии на клавиатуру с выбором группы<br>
      * Добаваляет или изменяет запись в базе данных о пользователе
-     * @return
      */
     public Reply addOrUpdateUserInDB() {
         BiConsumer<BaseAbilityBot, Update> action = (bot, upd) -> {
