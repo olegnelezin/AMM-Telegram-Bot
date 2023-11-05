@@ -22,8 +22,8 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageTe
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
@@ -146,8 +146,8 @@ public class ScheduleBot extends AbilityBot implements Constants {
     }
 
     /**
-     * Функция вызывается по команде /today<br>
-     * Выводит расписание на сегодня
+     * Функция вызывается по команде /now<br>
+     * Выводит текущуюю пару
      */
     public Ability now() {
         return Ability
@@ -169,7 +169,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                         String body;
                         List<Subject> subjects = subjectService.findByCourseAndGroupAndDateAndIsNumerator_NOW(user.getCourse(), user.getGroup(), localDateTime, DateUtil.isNumerator(localDateTime.toLocalDate()));
                         if(subjects.isEmpty()) {
-                            body = NO_SUBJECTS_MESSAGE;
+                            body = NO_SUBJECT_NOW_MESSAGE;
                         } else {
                             StringBuilder stringBuilder = new StringBuilder();
                             for (Subject subject: subjects) {
@@ -185,8 +185,8 @@ public class ScheduleBot extends AbilityBot implements Constants {
     }
 
     /**
-     * Функция вызывается по команде /week<br>
-     * Выводит расписание на неделю
+     * Функция вызывается по команде /today<br>
+     * Выводит расписание на сегодня
      */
     public Ability today() {
         return Ability
@@ -205,20 +205,119 @@ public class ScheduleBot extends AbilityBot implements Constants {
                     } else {
                         LocalDateTime localDateTime = LocalDateTime.now();
                         String header = MessageUtils.header(user, localDateTime);
-                        String body;
                         List<Subject> subjects = subjectService.findByCourseAndGroupAndDateAndIsNumerator_Day(user.getCourse(), user.getGroup(), localDateTime, DateUtil.isNumerator(localDateTime.toLocalDate()));
-                        if(subjects.isEmpty()) {
-                            body = NO_SUBJECTS_MESSAGE;
-                        } else {
-                            StringBuilder stringBuilder = new StringBuilder();
-                            for (Subject subject: subjects) {
-                                stringBuilder.append(MessageUtils.subject(subject));
-                            }
-                            body = stringBuilder.toString();
-                        }
+                        String body = MessageUtils.subjectListOrNoSubjectMessage(subjects, NO_SUBJECTS_MESSAGE);
                         sendMessage.setText(header +  body);
                     }
                     silent.execute(sendMessage);
+                })
+                .build();
+    }
+
+    /**
+     * Функция вызывается по команде /week<br>
+     * Выводит расписание на текущую неделю
+     */
+    public Ability week() {
+        return Ability
+                .builder()
+                .name("week")
+                .info(WEEK_INFO)
+                .locality(ALL)
+                .privacy(PUBLIC)
+                .action(ctx -> {
+                    SendMessage sendMessage = new SendMessage();
+                    sendMessage.setChatId(ctx.chatId());
+                    sendMessage.setParseMode("HTML");
+                    User user = userService.findUserByTelegramId(ctx.user().getId());
+                    if(user == null) {
+                        sendMessage.setText(UNREGISTER_MESSAGE);
+                    } else {
+                        LocalDateTime localDateTime = LocalDateTime.now();
+                        LocalDateTime currentDayWeek = localDateTime.with(DayOfWeek.MONDAY);
+                        for(int i = 0; i < 7; ++i) {
+                            List<Subject> subjects = subjectService.findByCourseAndGroupAndDateAndIsNumerator_Day(
+                                    user.getCourse(),
+                                    user.getGroup(),
+                                    currentDayWeek,
+                                    DateUtil.isNumerator(currentDayWeek.toLocalDate())
+                            );
+                            String header = MessageUtils.header(user, currentDayWeek);
+                            String body = MessageUtils.subjectListOrNoSubjectMessage(subjects, NO_SUBJECTS_MESSAGE);
+                            sendMessage.setText(header + body);
+                            silent.execute(sendMessage);
+                            currentDayWeek = currentDayWeek.plusDays(1);
+                        }
+                    }
+                })
+                .build();
+    }
+
+    /**
+     * Функция вызывается по команде /nextday<br>
+     * Выводит расписание на следующий день
+     */
+    public Ability nextday() {
+        return Ability
+                .builder()
+                .name("nextday")
+                .info(NEXTDAY_INFO)
+                .locality(ALL)
+                .privacy(PUBLIC)
+                .action(ctx -> {
+                    SendMessage sendMessage = new SendMessage();
+                    sendMessage.setChatId(ctx.chatId());
+                    sendMessage.setParseMode("HTML");
+                    User user = userService.findUserByTelegramId(ctx.user().getId());
+                    if(user == null) {
+                        sendMessage.setText(UNREGISTER_MESSAGE);
+                    } else {
+                        LocalDateTime localDateTime = LocalDateTime.now().plusDays(1);
+                        String header = MessageUtils.header(user, localDateTime);
+                        List<Subject> subjects = subjectService.findByCourseAndGroupAndDateAndIsNumerator_Day(user.getCourse(), user.getGroup(), localDateTime, DateUtil.isNumerator(localDateTime.toLocalDate()));
+                        String body = MessageUtils.subjectListOrNoSubjectMessage(subjects, NO_SUBJECTS_MESSAGE);
+                        sendMessage.setText(header +  body);
+                    }
+                    silent.execute(sendMessage);
+                })
+                .build();
+    }
+
+    /**
+     * Функция вызывается по команде /nextweek<br>
+     * Выводит расписание на следующую неделю
+     */
+    public Ability nextweek() {
+        return Ability
+                .builder()
+                .name("nextweek")
+                .info(NEXTWEEK_INFO)
+                .locality(ALL)
+                .privacy(PUBLIC)
+                .action(ctx -> {
+                    SendMessage sendMessage = new SendMessage();
+                    sendMessage.setChatId(ctx.chatId());
+                    sendMessage.setParseMode("HTML");
+                    User user = userService.findUserByTelegramId(ctx.user().getId());
+                    if(user == null) {
+                        sendMessage.setText(UNREGISTER_MESSAGE);
+                    } else {
+                        LocalDateTime localDateTime = LocalDateTime.now();
+                        LocalDateTime currentDayWeek = localDateTime.with(DayOfWeek.SUNDAY).plusDays(1);
+                        for(int i = 0; i < 7; ++i) {
+                            List<Subject> subjects = subjectService.findByCourseAndGroupAndDateAndIsNumerator_Day(
+                                    user.getCourse(),
+                                    user.getGroup(),
+                                    currentDayWeek,
+                                    DateUtil.isNumerator(currentDayWeek.toLocalDate())
+                            );
+                            String header = MessageUtils.header(user, currentDayWeek);
+                            String body = MessageUtils.subjectListOrNoSubjectMessage(subjects, NO_SUBJECTS_MESSAGE);
+                            sendMessage.setText(header + body);
+                            silent.execute(sendMessage);
+                            currentDayWeek = currentDayWeek.plusDays(1);
+                        }
+                    }
                 })
                 .build();
     }
