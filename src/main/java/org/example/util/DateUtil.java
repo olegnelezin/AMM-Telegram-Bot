@@ -36,8 +36,8 @@ public class DateUtil {
     }
 
     public static boolean isNumerator(LocalDate localDate) {
-        LocalDate NUMERATOR_DATE = LocalDate.of(2023, 10, 30);
+        LocalDate NUMERATOR_DATE = LocalDate.of(2023, 10, 23);
         long diff = ChronoUnit.DAYS.between(localDate, NUMERATOR_DATE);
-        return diff % 7 == 0;
+        return (diff / 7) % 2 == 0;
     }
 }
