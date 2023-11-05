@@ -264,7 +264,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                     } else {
                         LocalDateTime localDateTime = LocalDateTime.now();
                         LocalDateTime currentDayWeek = localDateTime.with(DayOfWeek.MONDAY);
-                        for(int i = 0; i < 7; ++i) {
+                        for(int i = 0; i < 6; ++i) {
                             List<Subject> subjects = subjectService.findByCourseAndGroupAndDateAndIsNumerator_Day(
                                     user.getCourse(),
                                     user.getGroup(),
@@ -334,7 +334,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                     } else {
                         LocalDateTime localDateTime = LocalDateTime.now();
                         LocalDateTime currentDayWeek = localDateTime.with(DayOfWeek.SUNDAY).plusDays(1);
-                        for(int i = 0; i < 7; ++i) {
+                        for(int i = 0; i < 6; ++i) {
                             List<Subject> subjects = subjectService.findByCourseAndGroupAndDateAndIsNumerator_Day(
                                     user.getCourse(),
                                     user.getGroup(),

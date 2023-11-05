@@ -42,5 +42,8 @@ public class Subject {
     @Column(nullable = false)
     private String lecturer;
 
+    @Column(nullable = false)
+    private String info;
+
     public Subject() { }
 }
