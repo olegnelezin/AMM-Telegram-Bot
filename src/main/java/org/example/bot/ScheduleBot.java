@@ -30,6 +30,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
+import static org.telegram.abilitybots.api.objects.Locality.USER;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 
 public class ScheduleBot extends AbilityBot implements Constants {
@@ -68,7 +69,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                 .builder()
                 .name("start")
                 .info(START_INFO)
-                .locality(ALL)
+                .locality(USER)
                 .privacy(PUBLIC)
                 .action(ctx -> silent.send(START_MESSAGE, ctx.chatId()))
                 .build();
@@ -83,7 +84,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                 .builder()
                 .name("reg")
                 .info(REGISTRATION_INFO)
-                .locality(ALL)
+                .locality(USER)
                 .privacy(PUBLIC)
                 .action(ctx -> {
                     SendMessage sendMessage = new SendMessage();
@@ -99,7 +100,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
      * Функция вызваеться при нажатии на клавиатуру с выбором курса<br>
      * Меняет описание и клавиатуру сообщения на выбор группы
      */
-    public Reply chooseGrope() {
+    public Reply chooseGroup() {
         BiConsumer<BaseAbilityBot, Update> action = (bot, upd) -> {
             int courseNumber = Integer.parseInt(upd.getCallbackQuery().getData().split("_")[1]);
             Course course = courseService.findByNumber(courseNumber);
@@ -147,20 +148,22 @@ public class ScheduleBot extends AbilityBot implements Constants {
     }
 
     /**
-     * Функция вызываеться при нажатии на клавиатуру с выбором группы<br>
-     * Добаваляет или изменяет запись в базе данных о пользователе
+     * Функция вызваеться при нажатии на клавиатуру с выбором группы<br>
+     * Меняет описание и клавиатуру сообщения на выбор подгруппы
      */
-    public Reply addOrUpdateUserInDB() {
+    public Reply chooseSubgroup() {
         BiConsumer<BaseAbilityBot, Update> action = (bot, upd) -> {
             String[] data = upd.getCallbackQuery().getData().split("_");
-            int groupNumber = Integer.parseInt(data[1]);
-            int courseNumber = Integer.parseInt(data[3]);
-            Long telegramId = upd.getCallbackQuery().getFrom().getId();
-            userService.saveOrUpdate(telegramId, courseNumber, groupNumber);
+            int courseNumber = Integer.parseInt(data[2]);
+            int groupNumber = Integer.parseInt(data[4]);
+            long chatId = AbilityUtils.getChatId(upd);
+            int messageId = upd.getCallbackQuery().getMessage().getMessageId();
+
             EditMessageText editMessageText = new EditMessageText();
-            editMessageText.setChatId(AbilityUtils.getChatId(upd));
-            editMessageText.setMessageId(upd.getCallbackQuery().getMessage().getMessageId());
-            editMessageText.setText(SUCCESSFUL_REGISTRATION);
+            editMessageText.setChatId(chatId);
+            editMessageText.setMessageId(messageId);
+            editMessageText.setText(CHOOSE_SUBGROUP_MESSAGE);
+            editMessageText.setReplyMarkup(InlineKeyboardFactory.allSubgroup(courseNumber, groupNumber));
             silent.execute(editMessageText);
         };
         return Reply.of(action, Flag.CALLBACK_QUERY, isPressInlineKeyboardAllGroupsForCourse());
@@ -170,7 +173,32 @@ public class ScheduleBot extends AbilityBot implements Constants {
      * Функция-условие определяет нажатие на клавиатуру с выбором группы
      */
     private Predicate<Update> isPressInlineKeyboardAllGroupsForCourse() {
-        return upd -> upd.hasCallbackQuery() && upd.getCallbackQuery().getData().startsWith("group");
+        return upd -> upd.hasCallbackQuery() && upd.getCallbackQuery().getData().startsWith("chooseGroup");
+    }
+
+    /**
+     * Функция вызываеться при нажатии на клавиатуру с выбором группы<br>
+     * Добаваляет или изменяет запись в базе данных о пользователе
+     */
+    public Reply addOrUpdateUserInDB() {
+        BiConsumer<BaseAbilityBot, Update> action = (bot, upd) -> {
+            String[] data = upd.getCallbackQuery().getData().split("_");
+            int courseNumber = Integer.parseInt(data[2]);
+            int groupNumber = Integer.parseInt(data[4]);
+            int subgroupNumber = Integer.parseInt(data[6]);
+            Long telegramId = upd.getCallbackQuery().getFrom().getId();
+            userService.saveOrUpdate(telegramId, courseNumber, groupNumber, subgroupNumber);
+            EditMessageText editMessageText = new EditMessageText();
+            editMessageText.setChatId(AbilityUtils.getChatId(upd));
+            editMessageText.setMessageId(upd.getCallbackQuery().getMessage().getMessageId());
+            editMessageText.setText(SUCCESSFUL_REGISTRATION);
+            silent.execute(editMessageText);
+        };
+        return Reply.of(action, Flag.CALLBACK_QUERY, isPressInlineKeyboardAllSubgroup());
+    }
+
+    private Predicate<Update> isPressInlineKeyboardAllSubgroup() {
+        return upd -> upd.hasCallbackQuery() && upd.getCallbackQuery().getData().startsWith("reg");
     }
 
     /**
@@ -182,7 +210,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                 .builder()
                 .name("now")
                 .info(NOW_INFO)
-                .locality(ALL)
+                .locality(USER)
                 .privacy(PUBLIC)
                 .action(ctx -> {
                     SendMessage sendMessage = new SendMessage();
@@ -195,7 +223,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                         LocalDateTime localDateTime = LocalDateTime.now();
                         String header = MessageUtils.header(user, localDateTime);
                         String body;
-                        List<Subject> subjects = subjectService.findByCourseAndGroupAndDateAndIsNumerator_NOW(user.getCourse(), user.getGroup(), localDateTime, DateUtil.isNumerator(localDateTime.toLocalDate()));
+                        List<Subject> subjects = subjectService.findByCourseAndGroupAndSubgroupAndDateAndIsNumerator_NOW(user.getCourse(), user.getGroup(), user.getSubgroup(), localDateTime, DateUtil.isNumerator(localDateTime.toLocalDate()));
                         if(subjects.isEmpty()) {
                             body = NO_SUBJECT_NOW_MESSAGE;
                         } else {
@@ -221,7 +249,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                 .builder()
                 .name("today")
                 .info(TODAY_INFO)
-                .locality(ALL)
+                .locality(USER)
                 .privacy(PUBLIC)
                 .action(ctx -> {
                     SendMessage sendMessage = new SendMessage();
@@ -233,7 +261,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                     } else {
                         LocalDateTime localDateTime = LocalDateTime.now();
                         String header = MessageUtils.header(user, localDateTime);
-                        List<Subject> subjects = subjectService.findByCourseAndGroupAndDateAndIsNumerator_Day(user.getCourse(), user.getGroup(), localDateTime, DateUtil.isNumerator(localDateTime.toLocalDate()));
+                        List<Subject> subjects = subjectService.findByCourseAndGroupAndSubgroupAndDateAndIsNumerator_Day(user.getCourse(), user.getGroup(), user.getSubgroup(), localDateTime, DateUtil.isNumerator(localDateTime.toLocalDate()));
                         String body = MessageUtils.subjectListOrNoSubjectMessage(subjects, NO_SUBJECTS_MESSAGE);
                         sendMessage.setText(header +  body);
                     }
@@ -251,7 +279,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                 .builder()
                 .name("week")
                 .info(WEEK_INFO)
-                .locality(ALL)
+                .locality(USER)
                 .privacy(PUBLIC)
                 .action(ctx -> {
                     SendMessage sendMessage = new SendMessage();
@@ -265,9 +293,10 @@ public class ScheduleBot extends AbilityBot implements Constants {
                         LocalDateTime localDateTime = LocalDateTime.now();
                         LocalDateTime currentDayWeek = localDateTime.with(DayOfWeek.MONDAY);
                         for(int i = 0; i < 6; ++i) {
-                            List<Subject> subjects = subjectService.findByCourseAndGroupAndDateAndIsNumerator_Day(
+                            List<Subject> subjects = subjectService.findByCourseAndGroupAndSubgroupAndDateAndIsNumerator_Day(
                                     user.getCourse(),
                                     user.getGroup(),
+                                    user.getSubgroup(),
                                     currentDayWeek,
                                     DateUtil.isNumerator(currentDayWeek.toLocalDate())
                             );
@@ -291,7 +320,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                 .builder()
                 .name("nextday")
                 .info(NEXTDAY_INFO)
-                .locality(ALL)
+                .locality(USER)
                 .privacy(PUBLIC)
                 .action(ctx -> {
                     SendMessage sendMessage = new SendMessage();
@@ -303,7 +332,12 @@ public class ScheduleBot extends AbilityBot implements Constants {
                     } else {
                         LocalDateTime localDateTime = LocalDateTime.now().plusDays(1);
                         String header = MessageUtils.header(user, localDateTime);
-                        List<Subject> subjects = subjectService.findByCourseAndGroupAndDateAndIsNumerator_Day(user.getCourse(), user.getGroup(), localDateTime, DateUtil.isNumerator(localDateTime.toLocalDate()));
+                        List<Subject> subjects = subjectService.findByCourseAndGroupAndSubgroupAndDateAndIsNumerator_Day(
+                                user.getCourse(),
+                                user.getGroup(),
+                                user.getSubgroup(),
+                                localDateTime,
+                                DateUtil.isNumerator(localDateTime.toLocalDate()));
                         String body = MessageUtils.subjectListOrNoSubjectMessage(subjects, NO_SUBJECTS_MESSAGE);
                         sendMessage.setText(header +  body);
                     }
@@ -321,7 +355,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                 .builder()
                 .name("nextweek")
                 .info(NEXTWEEK_INFO)
-                .locality(ALL)
+                .locality(USER)
                 .privacy(PUBLIC)
                 .action(ctx -> {
                     SendMessage sendMessage = new SendMessage();
@@ -335,9 +369,10 @@ public class ScheduleBot extends AbilityBot implements Constants {
                         LocalDateTime localDateTime = LocalDateTime.now();
                         LocalDateTime currentDayWeek = localDateTime.with(DayOfWeek.SUNDAY).plusDays(1);
                         for(int i = 0; i < 6; ++i) {
-                            List<Subject> subjects = subjectService.findByCourseAndGroupAndDateAndIsNumerator_Day(
+                            List<Subject> subjects = subjectService.findByCourseAndGroupAndSubgroupAndDateAndIsNumerator_Day(
                                     user.getCourse(),
                                     user.getGroup(),
+                                    user.getSubgroup(),
                                     currentDayWeek,
                                     DateUtil.isNumerator(currentDayWeek.toLocalDate())
                             );

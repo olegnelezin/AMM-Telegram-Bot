@@ -24,10 +24,14 @@ public class User {
     @JoinColumn(nullable = false)
     private Group group;
 
-    public User(long telegramId, Course course, Group group) {
+    @Column(nullable = false)
+    private int subgroup;
+
+    public User(long telegramId, Course course, Group group, int subgroup) {
         this.telegramId = telegramId;
         this.course = course;
         this.group = group;
+        this.subgroup = subgroup;
     }
 
     public User() {}

@@ -49,7 +49,7 @@ public class InlineKeyboardFactory {
             ++i;
             InlineKeyboardButton button = new InlineKeyboardButton();
             button.setText(Integer.toString(group.getNumber()));
-            button.setCallbackData("group_" + group.getNumber() + "_course_" + course.getNumber());
+            button.setCallbackData(String.format("chooseGroup_course_%d_group_%d", course.getNumber(), group.getNumber()));
             rowInline.add(button);
             if(i == 3) {
                 rowsInline.add(rowInline);
@@ -66,6 +66,23 @@ public class InlineKeyboardFactory {
         inlineKeyboard.setKeyboard(rowsInline);
         return inlineKeyboard;
     }
+
+    public static InlineKeyboardMarkup allSubgroup(int numberCourse, int numberGroup) {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline = new ArrayList<>();
+
+        for(int i = 1; i < 3; ++i) {
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText(Integer.toString(i));
+            button.setCallbackData(String.format("reg_course_%d_group_%d_subgroup_%d", numberCourse, numberGroup, i));
+            rowInline.add(button);
+        }
+        rowsInline.add(rowInline);
+        inlineKeyboard.setKeyboard(rowsInline);
+        return inlineKeyboard;
+    }
+
 
     public static InlineKeyboardMarkup empty() {
         return new InlineKeyboardMarkup();

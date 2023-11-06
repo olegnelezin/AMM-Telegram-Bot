@@ -6,6 +6,7 @@ public interface Constants {
     String REGISTRATION_INFO = "Регистрация или смена круса/группы";
     String REGISTRATION_MESSAGE = "Выберите курс:";
     String CHOOSE_GROUP_MESSAGE = "Выберите группу:";
+    String CHOOSE_SUBGROUP_MESSAGE = "Выберите подгруппу:";
     String SUCCESSFUL_REGISTRATION = "Успешная регистрация!";
     String TODAY_INFO = "Расписание на сегодня";
     String NOW_INFO = "Текущий предмет";

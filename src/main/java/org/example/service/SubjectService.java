@@ -16,10 +16,10 @@ public class SubjectService {
     public SubjectService() {
         subjectDao = new SubjectDao();
     }
-    public List<Subject> findByCourseAndGroupAndDateAndIsNumerator_NOW(Course course, Group group, LocalDateTime localDateTime, boolean isNumerator) {
-        return subjectDao.findByCourseAndGroupAndDateAndIsNumerator_NOW(course, group, localDateTime, isNumerator);
+    public List<Subject> findByCourseAndGroupAndSubgroupAndDateAndIsNumerator_NOW(Course course, Group group, int subgroup, LocalDateTime localDateTime, boolean isNumerator) {
+        return subjectDao.findByCourseAndGroupAndSubgroupAndDateAndIsNumerator_NOW(course, group, subgroup, localDateTime, isNumerator);
     }
-    public List<Subject> findByCourseAndGroupAndDateAndIsNumerator_Day(Course course, Group group, LocalDateTime localDateTime, boolean isNumerator) {
-        return subjectDao.findByCourseAndGroupAndDateAndIsNumerator_Day(course, group, localDateTime, isNumerator);
+    public List<Subject> findByCourseAndGroupAndSubgroupAndDateAndIsNumerator_Day(Course course, Group group, int subgroup, LocalDateTime localDateTime, boolean isNumerator) {
+        return subjectDao.findByCourseAndGroupAndSubgroupAndDateAndIsNumerator_Day(course, group, subgroup, localDateTime, isNumerator);
     }
 }

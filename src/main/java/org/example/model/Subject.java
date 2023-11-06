@@ -25,6 +25,9 @@ public class Subject {
     private Group group;
 
     @Column(nullable = false)
+    private int subgroup;
+
+    @Column(nullable = false)
     private String weekday;
 
     @Column(nullable = false)

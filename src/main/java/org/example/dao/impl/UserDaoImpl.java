@@ -11,7 +11,7 @@ import org.hibernate.query.Query;
 
 public class UserDaoImpl implements UserDao {
 
-    public void saveOrUpdate(Long telegramId, int courseNumber, int groupNumber) {
+    public void saveOrUpdate(Long telegramId, int courseNumber, int groupNumber, int subgroupNumber) {
         CourseDao courseDao = new CourseDao();
         GroupDao groupDao = new GroupDao();
         Course course = courseDao.findByNumber(courseNumber);
@@ -20,12 +20,13 @@ public class UserDaoImpl implements UserDao {
         Session session =  HibernateSessionFactoryUtil.getSessionFactory().openSession();
         Transaction tr = session.beginTransaction();
         if(user == null) {
-            user = new User(telegramId, course, group);
+            user = new User(telegramId, course, group, subgroupNumber);
             session.persist(user);
         } else {
             session.evict(user);
             user.setCourse(course);
             user.setGroup(group);
+            user.setSubgroup(subgroupNumber);
             session.merge(user);
         }
         tr.commit();
