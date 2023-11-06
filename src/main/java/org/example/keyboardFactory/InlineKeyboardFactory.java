@@ -58,10 +58,7 @@ public class InlineKeyboardFactory {
         }
         rowsInline.add(rowInline);
         rowInline = new ArrayList<>();
-        InlineKeyboardButton button = new InlineKeyboardButton();
-        button.setText("<");
-        button.setCallbackData("backToCourse");
-        rowInline.add(button);
+        rowInline.add(BackButton("backToCourse"));
         rowsInline.add(rowInline);
         inlineKeyboard.setKeyboard(rowsInline);
         return inlineKeyboard;
@@ -79,10 +76,19 @@ public class InlineKeyboardFactory {
             rowInline.add(button);
         }
         rowsInline.add(rowInline);
+        rowInline = new ArrayList<>();
+        rowInline.add(BackButton("backToGroup_course_" + numberCourse));
+        rowsInline.add(rowInline);
         inlineKeyboard.setKeyboard(rowsInline);
         return inlineKeyboard;
     }
 
+    private static InlineKeyboardButton BackButton(String data) {
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        button.setText("<");
+        button.setCallbackData(data);
+        return button;
+    }
 
     public static InlineKeyboardMarkup empty() {
         return new InlineKeyboardMarkup();

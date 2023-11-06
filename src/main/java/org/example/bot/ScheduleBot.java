@@ -137,14 +137,14 @@ public class ScheduleBot extends AbilityBot implements Constants {
             editMessageText.setReplyMarkup(InlineKeyboardFactory.allCourses());
             silent.execute(editMessageText);
         };
-        return Reply.of(action, Flag.CALLBACK_QUERY, isPressButtonBackToCourse());
+        return Reply.of(action, Flag.CALLBACK_QUERY, isPressButtonBackTo("backToCourse"));
     }
 
     /**
      * Функция-условие определяет нажатие на кнопку назад при выборе группы
      */
-    private Predicate<Update> isPressButtonBackToCourse() {
-        return upd -> upd.hasCallbackQuery() && upd.getCallbackQuery().getData().equals("backToCourse");
+    private Predicate<Update> isPressButtonBackTo(String backTo) {
+        return upd -> upd.hasCallbackQuery() && upd.getCallbackQuery().getData().startsWith(backTo);
     }
 
     /**
@@ -167,6 +167,22 @@ public class ScheduleBot extends AbilityBot implements Constants {
             silent.execute(editMessageText);
         };
         return Reply.of(action, Flag.CALLBACK_QUERY, isPressInlineKeyboardAllGroupsForCourse());
+    }
+
+    public Reply backToChooseGroup() {
+        BiConsumer<BaseAbilityBot, Update> action = (bot, upd) -> {
+            String[] data = upd.getCallbackQuery().getData().split("_");
+            int courseNumber = Integer.parseInt(data[2]);
+            Course course = courseService.findByNumber(courseNumber);
+
+            EditMessageText editMessageText = new EditMessageText();
+            editMessageText.setChatId(AbilityUtils.getChatId(upd));
+            editMessageText.setMessageId(upd.getCallbackQuery().getMessage().getMessageId());
+            editMessageText.setText(CHOOSE_GROUP_MESSAGE);
+            editMessageText.setReplyMarkup(InlineKeyboardFactory.allGroupsForCourse(course));
+            silent.execute(editMessageText);
+        };
+        return Reply.of(action, Flag.CALLBACK_QUERY, isPressButtonBackTo("backToGroup"));
     }
 
     /**
@@ -197,6 +213,9 @@ public class ScheduleBot extends AbilityBot implements Constants {
         return Reply.of(action, Flag.CALLBACK_QUERY, isPressInlineKeyboardAllSubgroup());
     }
 
+    /**
+     * Функция-условие определяет нажатие на клавиатуру с выбором подгруппы
+     */
     private Predicate<Update> isPressInlineKeyboardAllSubgroup() {
         return upd -> upd.hasCallbackQuery() && upd.getCallbackQuery().getData().startsWith("reg");
     }
