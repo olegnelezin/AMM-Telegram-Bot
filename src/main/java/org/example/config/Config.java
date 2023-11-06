@@ -8,5 +8,5 @@ public class Config {
     @Getter
     private static final String name = "amm_schedule";
     @Getter
-    private static final String token = "#";
+    private static final String token = "###";
 }
