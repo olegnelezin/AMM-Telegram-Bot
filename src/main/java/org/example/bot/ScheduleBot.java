@@ -7,6 +7,7 @@ import org.example.model.Course;
 import org.example.model.Subject;
 import org.example.model.User;
 import org.example.service.CourseService;
+import org.example.service.LogService;
 import org.example.service.SubjectService;
 import org.example.service.UserService;
 import org.example.util.DateUtil;
@@ -47,12 +48,14 @@ public class ScheduleBot extends AbilityBot implements Constants {
     private final UserService userService;
     private final CourseService courseService;
     private final SubjectService subjectService;
+    private final LogService logService;
 
     public ScheduleBot() {
         super(Config.getToken(), Config.getName(), toggle);
         userService = new UserService();
         courseService = new CourseService();
         subjectService = new SubjectService();
+        logService = new LogService();
     }
 
     @Override
@@ -92,6 +95,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                     sendMessage.setText(REGISTRATION_MESSAGE);
                     sendMessage.setReplyMarkup(InlineKeyboardFactory.allCourses());
                     silent.execute(sendMessage);
+                    logService.log(LogService.parse(ctx.user().getId().toString(), ctx.user().getUserName(), ctx.user().getFirstName(), ctx.user().getLastName(), "/reg"));
                 })
                 .build();
     }
@@ -232,6 +236,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                 .locality(USER)
                 .privacy(PUBLIC)
                 .action(ctx -> {
+                    logService.log(LogService.parse(ctx.user().getId().toString(), ctx.user().getUserName(), ctx.user().getFirstName(), ctx.user().getLastName(), "/now"));
                     SendMessage sendMessage = new SendMessage();
                     sendMessage.setChatId(ctx.chatId());
                     sendMessage.setParseMode("HTML");
@@ -271,6 +276,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                 .locality(USER)
                 .privacy(PUBLIC)
                 .action(ctx -> {
+                    logService.log(LogService.parse(ctx.user().getId().toString(), ctx.user().getUserName(), ctx.user().getFirstName(), ctx.user().getLastName(), "/today"));
                     SendMessage sendMessage = new SendMessage();
                     sendMessage.setChatId(ctx.chatId());
                     sendMessage.setParseMode("HTML");
@@ -301,6 +307,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                 .locality(USER)
                 .privacy(PUBLIC)
                 .action(ctx -> {
+                    logService.log(LogService.parse(ctx.user().getId().toString(), ctx.user().getUserName(), ctx.user().getFirstName(), ctx.user().getLastName(), "/week"));
                     SendMessage sendMessage = new SendMessage();
                     sendMessage.setChatId(ctx.chatId());
                     sendMessage.setParseMode("HTML");
@@ -342,6 +349,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                 .locality(USER)
                 .privacy(PUBLIC)
                 .action(ctx -> {
+                    logService.log(LogService.parse(ctx.user().getId().toString(), ctx.user().getUserName(), ctx.user().getFirstName(), ctx.user().getLastName(), "/nextday"));
                     SendMessage sendMessage = new SendMessage();
                     sendMessage.setChatId(ctx.chatId());
                     sendMessage.setParseMode("HTML");
@@ -377,6 +385,7 @@ public class ScheduleBot extends AbilityBot implements Constants {
                 .locality(USER)
                 .privacy(PUBLIC)
                 .action(ctx -> {
+                    logService.log(LogService.parse(ctx.user().getId().toString(), ctx.user().getUserName(), ctx.user().getFirstName(), ctx.user().getLastName(), "/nextweek"));
                     SendMessage sendMessage = new SendMessage();
                     sendMessage.setChatId(ctx.chatId());
                     sendMessage.setParseMode("HTML");
